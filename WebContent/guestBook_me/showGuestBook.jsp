@@ -83,8 +83,8 @@
 				<tr>
 					<td width="225">NO : <%=vlist.size()-i %></td>
 					<td width="225">
+						<a href = "mailto:<%=writer.getEmail() %>">
 						<img src="img/face.bmp" border="0" alt="ÀÌ¸§">
-						<a href = "mailto : <%=writer.getEmail() %>">
 						<%=writer.getName() %></a>
 					</td>
 					<td width="150" align="center">
