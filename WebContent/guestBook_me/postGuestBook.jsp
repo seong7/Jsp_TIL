@@ -33,10 +33,10 @@
 								<input title="이름을 적어주세요" name="name" size="9" maxlength="20" value="<%=login.getName() %>" readonly>
 								<img src="img/email.bmp" border="0" alt="메일">
 								<input title="전자메일 주소를 적는 곳이군요" name="email" size="20"
-									maxlength="80" value="<%=login.getEmail() %>"> 
+									maxlength="80" value="<%=login.getEmail() %>" readonly> 
 								<img src="img/hp.bmp" border="0" alt="홈페이지"> 
 								<input title="홈페이지도 있으면 알려주세요." name="hp" size="25"
-									maxlength="80" value="<%=login.getHp()%>">
+									maxlength="80" value="<%=login.getHp()%>"readonly>
 									</td>
 							</tr>
 							<tr>
