@@ -1,4 +1,4 @@
-package poll;
+package poll_me;
 
 public class PollItemBean {
 
