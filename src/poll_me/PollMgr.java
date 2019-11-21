@@ -1,4 +1,4 @@
-package poll;
+package poll_me;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

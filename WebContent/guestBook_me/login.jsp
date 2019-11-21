@@ -1,3 +1,4 @@
+<!-- GuestBook_me -->
 <%@page contentType="text/html;charset=EUC_KR"%>
 <jsp:useBean id="login" class="guestBook_me.JoinBean" scope="session"/>
 <%
