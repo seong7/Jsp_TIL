@@ -84,6 +84,38 @@ public class FileloadMgr {
 		return flag;
 	}
 	
+	//파일 삭제
+	public void deleteFile(int num[]) {              //  flist.jsp 에서 체크된 checkbox 의 num 값들 받아서 실행
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql = "";
+		try {
+			con = pool.getConnection();
+			for(int numI : num) {
+				sql="SELECT upFile FROM tblFileload WHERE num=?";
+				pstmt=con.prepareStatement(sql);
+				pstmt.setInt(1,  numI);
+				rs=pstmt.executeQuery();
+				if(!rs.next())
+					continue;  							// rs 에 값이 없으면 위의  for 문 num[i+1]로 바로 감. 아래 코드는 실행 안됨.
+				String upFile = rs.getString(1);
+				File f  = new File(saveFolder+upFile);
+				if(f.exists())  							 // 해당 위치에 지명된 파일 존재하는지 확인
+					f.delete();  						 // 존재하면 삭제
+				pstmt.close();  						// 다른 sql 을 또 실행시키기 위해 닫아준다.  (결과 값은 이미 rs에 있음)
+				sql = "DELETE FROM tblFileload WHERE num=?";
+				pstmt = con.prepareStatement(sql); 				 // 파일 삭제하고 나면 해당 파일 정보 DB에서도 삭제
+				pstmt.setInt(1, numI);
+				pstmt.executeUpdate();
+			}
+		} catch(Exception e){
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(con, pstmt, rs);
+		}
+	}
+	
 }
 
 
