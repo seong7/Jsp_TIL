@@ -1,4 +1,4 @@
-<%@ page import = "ch03.MyUtil" %>
+<%@ page import = "ch03_servlet.MyUtil" %>
 <%@ page contentType="text/html; charset=EUC-KR"%>
 <%
 		response.setCharacterEncoding("EUC-KR");

@@ -1,4 +1,4 @@
-package ch03;
+package ch03_servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
