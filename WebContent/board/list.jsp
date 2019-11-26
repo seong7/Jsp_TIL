@@ -23,6 +23,16 @@
 		String keyField = "";   // 분류  (db table 에서는 column 명)
 		String keyWord = "";   // 입력된 검색어
 		
+		// 검색일 때
+		if(request.getParameter("keyWord")!=null){
+			keyField = request.getParameter("keyField");
+			keyWord = request.getParameter("keyWord");
+		}
+		
+		// 검색 후 다시 처음 화면으로
+		if(request.getParameter("reload")!=null && request.getParameter("reload").equals("true")){
+			keyField=""; keyWord="";
+		}
 		
 		totalRecord = mgr.getTotalCount(keyField, keyWord);
 		//out.println(totalRecord);
@@ -73,6 +83,15 @@
 		function read(num) {
 			document.readFrm.num.value = num;
 			document.readFrm.action = "read.jsp";
+			document.readFrm.submit();
+		}
+		function block(block){
+			document.readFrm.nowPage.value=
+				<%=pagePerBlock%>*(block-1)+1;
+				document.readFrm.submit();
+		}
+		function pageing(page){
+			document.readFrm.nowPage.value=page;
 			document.readFrm.submit();
 		}
 	</script>
@@ -161,7 +180,82 @@
 						%>
 					</td>
 				</tr>
+				<tr>
+					<td colspan = "2"><br/><br/></td>
+				</tr>
+				<tr >
+					<td >
+						<% if(totalPage>0){ %>
+						
+							<!-- 이전 블럭 -->
+							<% if(nowBlock>1){ %>
+								<a href="javascript:block('<%=nowBlock-1%>')">prev...</a>
+							<% } %>
+							
+							<!-- 페이징 -->
+							<%
+								int pageStart=(nowBlock-1)*pagePerBlock+1;
+								int pageEnd = (pageStart+pagePerBlock)<totalPage?
+													pageStart+pagePerBlock:totalPage+1;
+								for(;pageStart<pageEnd;pageStart++){
+							%>
+								<a href="javascript:pageing('<%=pageStart%>')">
+									<%if(pageStart ==nowPage){%>
+										<font color="red">	
+									<%}%>
+											
+											[<%=pageStart %>]
+											
+									<%if(pageStart==nowPage){ %>
+										</font>
+									<%} %>
+								</a>
+							<%} %>	
+							
+							<!-- 다음 블럭 -->
+							<% if(totalBlock>nowBlock){ %>
+								<a href="javascript:block('<%=nowBlock+1%>')">...next</a>
+							<% } %>
+						<% }	%>
+					</td>
+					<td align="right">
+						<a href="post.jsp">[글쓰기]</a>
+						<a href="javascript:list()">[처음으로]</a>
+					</td>
+				</tr>
 			</table>
+			
+			<hr width="75%">
+			
+			<form name="listFrm" method="post">
+				<input type="hidden" name="reload" value="true">
+				<input type="hidden" name="nowPage" value="1">
+			</form>
+
+			<form  name="searchFrm">
+				<table  width="600" cellpadding="4" cellspacing="0">
+			 		<tr>
+			  			<td align="center" valign="bottom">
+			   				<select name="keyField" size="1" >
+			    				<option value="name"> 이 름</option>
+			    				<option value="subject"> 제 목</option>
+			    				<option value="content"> 내 용</option>
+			   				</select>
+			   				<input size="16" name="keyWord">
+			   				<input type="button"  value="찾기" onClick="javascript:check()">
+			   				<input type="hidden" name="nowPage" value="1">
+			  			</td>
+			 		</tr>
+				</table>
+			</form>
+
+			<form name="readFrm">
+				<input type="hidden" name="num">
+				<input type="hidden" name="nowPage" value="<%=nowPage %>">
+				<input type="hidden" name="keyField" value="<%=keyField %>">
+				<input type="hidden" name="keyWord" value="<%=keyWord %>">
+				<input type="hidden" name="numPerPage" value="<%=numPerPage %>">
+			</form>
 		</div>
 	</body>
 </html>
