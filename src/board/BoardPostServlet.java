@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/board/boardPost")
 public class BoardPostServlet extends HttpServlet {
 	
+	
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("EUC-KR");   // post 방식이므로 encoding 설정

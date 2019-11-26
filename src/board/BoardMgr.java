@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -91,11 +92,80 @@ public class BoardMgr {
 		}
 	}
 	
-	//Board Total Count (총 게시물 개수)
+	//Board Total Count ( 총 게시물 개수 _ 화면에 출력 )
+	public int getTotalCount(String keyField, String keyWord) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql = null;
+		int totalCount=0;
+		try {
+			con = pool.getConnection();
+			if(keyWord.equals("")||keyWord==null) { 			                 // 검색이 아닌경우
+				sql="SELECT count(*) FROM tblBoard";
+				pstmt = con.prepareStatement(sql);
+			} else {																			     				 // 검색인 경우
+				sql="SELECT count(*) FROM tblBoard WHERE " + keyField +" LIKE ?"; 	 	// keyField column 이  %keyWord% 값인 행 검색
+																														// sql 문 띄어쓰기 주의 
+				pstmt = con.prepareStatement(sql);
+				pstmt.setString(1, "%" +keyWord + "%");                   					     // &검색어&  : 검색어가 포함된 모든 값
+			}
+			rs=pstmt.executeQuery();
+			if(rs.next())
+				totalCount = rs.getInt(1);
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(con, pstmt, rs);
+		}
+		return totalCount;
+	}
 	
 	
-	//Board List(리스트) : 검색 포함  
-		//( 페이지마다 10개씩만 가져오므로 DB limit 기능 사용 ) 
+	//Board List(리스트) : 검색 기능도 포함  ( keyField / keyWord 사용 )
+		//( 페이지마다 10개씩만 가져오므로 DB limit 기능 사용 )
+	public Vector<BoardBean> getBoardList(String keyField, String keyWord, int start, int cnt){
+		Connection con =null;
+		PreparedStatement pstmt = null;
+		String sql = "";
+		ResultSet rs = null;
+		Vector <BoardBean> vlist = new Vector <BoardBean> ();
+		try {
+			con = pool.getConnection();
+			if(keyWord.trim().contentEquals("")||keyWord==null) { 						 // 검색이 아닌 경우
+				sql = "SELECT * FROM tblBoard ORDER BY ref DESC, pos ASC LIMIT ?, ?";  	// LIMIT x, y   :  x번째 행부터 y개 select
+																													// ref descending 정렬  + pos ascending 정렬
+				pstmt = con.prepareStatement(sql);
+				pstmt.setInt(1, start); 		// 게시물 시작 행 번호
+				pstmt.setInt(2, cnt);			// 가져올 게시물 개수
+			} else {      															            		  // 검색인 경우
+				sql = "SELECT * FROM tblBoard WHERE " + keyField + " LIKE ? "		   // keyField column 이  %keyWord% 값인 행 검색
+						+ "ORDER BY ref DESC pos LIMIT ?, ?";	    							   // sql 문 띄어쓰기 주의 
+				pstmt = con.prepareStatement(sql);
+			}
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				BoardBean bean = new BoardBean();
+				bean.setNum(rs.getInt("num"));
+				bean.setName(rs.getString("name"));
+				bean.setSubject(rs.getString("subject"));
+				bean.setPos(rs.getInt("pos"));
+				bean.setRef(rs.getInt("ref"));
+				bean.setDepth(rs.getInt("depth"));
+				//regdate DB에서 DATE타입이지만 모든 타입은 getString 가능
+				bean.setRegdate(rs.getString("regdate"));
+				bean.setCount(rs.getInt("count"));
+				bean.setFilename(rs.getString("filename"));
+				vlist.addElement(bean);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(con, pstmt, rs);
+		}
+		return vlist;
+	}
+	
 	
 	
 	// Board Get (한 개의 게시물)
@@ -132,7 +202,7 @@ public class BoardMgr {
 		try {
 			con = pool.getConnection();
 			sql = "insert tblBoard(name,content,subject,ref,pos,depth,regdate,pass,count,ip,filename,filesize)";
-			sql+="values('aaa', 'bbb', 'ccc', 0, 0, 0, now(), '1111',0, '127.0.0.1', null, 0);";
+			sql+=" values('aaa', 'bbb', 'ccc', 0, 0, 0, now(), '1111',0, '127.0.0.1', null, 0);";
 			pstmt = con.prepareStatement(sql);
 			for (int i = 0; i < 1000; i++) {
 				pstmt.executeUpdate();
@@ -144,7 +214,7 @@ public class BoardMgr {
 		}
 	}
 	
-	//main
+	//main method
 	public static void main(String[] args) {
 		BoardMgr mgr = new BoardMgr();
 		mgr.post1000();
