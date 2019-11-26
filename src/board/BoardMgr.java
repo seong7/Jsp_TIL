@@ -140,8 +140,11 @@ public class BoardMgr {
 				pstmt.setInt(2, cnt);			// 가져올 게시물 개수
 			} else {      															            		  // 검색인 경우
 				sql = "SELECT * FROM tblBoard WHERE " + keyField + " LIKE ? "		   // keyField column 이  %keyWord% 값인 행 검색
-						+ "ORDER BY ref DESC pos LIMIT ?, ?";	    							   // sql 문 띄어쓰기 주의 
+						+ "ORDER BY ref DESC, pos ASC LIMIT ?, ?";	    							   // sql 문 띄어쓰기 주의 
 				pstmt = con.prepareStatement(sql);
+				pstmt.setString(1, "%" +keyWord + "%");
+				pstmt.setInt(2, start); 		// 게시물 시작 행 번호
+				pstmt.setInt(3, cnt);			// 가져올 게시물 개수
 			}
 			rs = pstmt.executeQuery();
 			while(rs.next()) {
