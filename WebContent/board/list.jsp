@@ -14,6 +14,11 @@
 		int nowPage = 1;			// 최초 접속시 default page
 		int nowBlock = 1;		// 최초 접속시 default block
 		
+		// page에 보여질 게시물 개수 값
+		if(request.getParameter("numPerPage")!=null && !request.getParameter("numPerPage").equals("null")){
+			numPerPage=UtilMgr.parseInt(request, "numPerPage");
+		}
+		
 		/** BoardMgr.getBoardList() 의 매개변수 중 sql 문 LIMIT 조건에 들어갈 값 지정 **/
 				// LIMIT start, cnt     :    start 번째 행부터 cnt 개 레코드 출력 
 		int start = 0;
@@ -83,8 +88,10 @@
 		function read(num) {
 			document.readFrm.num.value = num;
 			document.readFrm.action = "read.jsp";
+			//document.readFrm.action = "boardRead";
 			document.readFrm.submit();
 		}
+		
 		function block(block){
 			document.readFrm.nowPage.value=
 				<%=pagePerBlock%>*(block-1)+1;
@@ -111,11 +118,14 @@
 						<form name = "npFrm" method = "post">
 							<select name = "numPerPage" size = "1" onchange="numPerFn(this.form.numPerPage.value)">
 								<option value="5">5개 보기</option>
-								<option value="10" selected>10개 보기</option>
+								<option value="10">10개 보기</option>
 								<option value="15">15개 보기</option>
 								<option value="30">30개 보기</option>
 							</select>
 						</form>
+						<script>
+							document.npFrm.numPerPage.value="<%=numPerPage%>"
+						</script>
 					</td>
 				</tr>
 			</table>
@@ -153,7 +163,7 @@
 										String filename = bean.getFilename();		// 첨부파일
 								%>		
 								<tr align="center">
-									<td><%=totalRecord-start-i %></td>  <!-- 전체 레코드 수 - 현재 시작 행 - i -->
+									<td><%=totalRecord-start-i %></td>  <!-- : "전체 레코드 수-현재 시작 행-i" -->
 									<td align="left">
 										<%
 											for(int j=0; j<depth; j++){   // depth : 답변 단계 (단계 1마다 제목에 빈칸 2개 넣어줌)
@@ -163,7 +173,7 @@
 										<a href="javascript:read('<%=num%>')">
 											<%=subject %>
 										</a>
-										<% if(filename!=null&&filename.equals("")){ %>
+										<% if(filename!=null&&!filename.equals("")){ %>
 											<img src = "img/icon_file.gif" align="middle">
 										<% } %>
 									</td>

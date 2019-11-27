@@ -172,6 +172,40 @@ public class BoardMgr {
 	
 	
 	// Board Get (한 개의 게시물)
+	public BoardBean getBoard(int num) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql = null;
+		BoardBean bean = new BoardBean();
+		try {
+			con = pool.getConnection();
+			sql = "SELECT * FROM tblBoard WHERE num = ?";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				bean.setNum(rs.getInt(1));
+				bean.setName(rs.getString(2));
+				bean.setSubject(rs.getString(3));
+				bean.setContent(rs.getString(4));
+				bean.setPos(rs.getInt(5));
+				bean.setRef(rs.getInt(6));
+				bean.setDepth(rs.getInt(7));
+				bean.setRegdate(rs.getString(8));
+				bean.setPass(rs.getString(9));
+				bean.setIp(rs.getString(10));
+				bean.setCount(rs.getInt(11));
+				bean.setFilename(rs.getString(12));
+				bean.setFilesize(rs.getInt(13));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(con, pstmt, rs);
+		}
+		return bean;
+	}
 
 	
 	// Count Up(조회수 증가)
@@ -184,7 +218,7 @@ public class BoardMgr {
 			sql = "UPDATE tblBoard SET count=count+1 WHERE num = ?";
 			pstmt = con.prepareStatement(sql);
 			pstmt.setInt(1, num);
-			pstmt.executeQuery();
+			pstmt.executeUpdate();
 		} catch(Exception e){
 			e.printStackTrace();
 		} finally {
@@ -194,7 +228,38 @@ public class BoardMgr {
 	
 	
 	// Board Delete : 게시물 삭제 (업로드한 파일도 함께 삭제)
-	
+	public void deleteBoard(int num) {
+		Connection con = null;
+		PreparedStatement pstmt=null;
+		ResultSet rs = null;
+		String sql = null;
+		try {
+			con = pool.getConnection();
+			sql = "SELECT filename FROM tblBoard WHERE num=?";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			rs = pstmt.executeQuery();
+			if(rs.next() && rs.getString(1)!=null) {
+				if(!rs.getString(1).equals("")) {
+					File f = new File(SAVEFOLDER+rs.getString(1));
+					if(f.exists()) {
+						//파일 삭제 기능
+						UtilMgr.delete(SAVEFOLDER+rs.getString(1));
+					}
+				}
+			}
+			pstmt.close();
+			sql = "DELETE FROM tblBoard WHERE num=?";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1,num);
+			pstmt.executeUpdate();
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(con, pstmt, rs);
+		}
+				
+	}
 	
 	//Post 1000
 	//페이징 및 블럭 테스트를 위한 게시물 저장 메소드 
