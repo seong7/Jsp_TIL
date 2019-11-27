@@ -5,7 +5,7 @@
 <%@page import="poll_answer.PollListBean"%>
 <%@page import="guestbook.MyUtil"%>
 <%@page contentType="text/html; charset=EUC-KR"%>
-jsp:useBean id="mgr" class="poll.PollMgr"/>
+<jsp:useBean id="mgr" class="poll_answer.PollMgr"/>
 <%
 		request.setCharacterEncoding("EUC-KR");
 		int num = MyUtil.parseInt(request, "num");
