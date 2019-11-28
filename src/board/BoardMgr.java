@@ -37,8 +37,8 @@ public class BoardMgr {
 			
 			File dir = new File(SAVEFOLDER);
 			if(!dir.exists()) {		//// 폴더가 없다면 새롭게 만들어라.
-				dir.mkdirs();         // mkdir() : 상위 폴더가 없으면 생성불가
-			}							  // mkdirs() : 상위 폴더가 없어도 생성가능
+				dir.mkdirs();         // mkdir() : 상위 폴더가 없으면 저장불가
+			}							  // mkdirs() : 상위 폴더가 없어도 폴더 생성 후 저장 가능
 			
 			MultipartRequest multi=
 					new MultipartRequest(req, SAVEFOLDER, MAXSIZE, 
@@ -47,7 +47,7 @@ public class BoardMgr {
 			String filename = null;
 			int filesize=0; 
 
-			//사용자가 파일을 업로드 한 경우
+			//사용자가 파일을 업로드 하는 경우
 			if(multi.getFilesystemName("filename")!=null) {
 				filename = multi.getFilesystemName("filename");
 				filesize = (int)multi.getFile("filename").length();
@@ -172,6 +172,40 @@ public class BoardMgr {
 	
 	
 	// Board Get (한 개의 게시물)
+	public BoardBean getBoard(int num) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql = null;
+		BoardBean bean = new BoardBean();
+		try {
+			con = pool.getConnection();
+			sql = "SELECT * FROM tblBoard WHERE num = ?";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				bean.setNum(rs.getInt(1));
+				bean.setName(rs.getString(2));
+				bean.setSubject(rs.getString(3));
+				bean.setContent(rs.getString(4));
+				bean.setPos(rs.getInt(5));
+				bean.setRef(rs.getInt(6));
+				bean.setDepth(rs.getInt(7));
+				bean.setRegdate(rs.getString(8));
+				bean.setPass(rs.getString(9));
+				bean.setIp(rs.getString(10));
+				bean.setCount(rs.getInt(11));
+				bean.setFilename(rs.getString(12));
+				bean.setFilesize(rs.getInt(13));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(con, pstmt, rs);
+		}
+		return bean;
+	}
 
 	
 	// Count Up(조회수 증가)
@@ -184,7 +218,7 @@ public class BoardMgr {
 			sql = "UPDATE tblBoard SET count=count+1 WHERE num = ?";
 			pstmt = con.prepareStatement(sql);
 			pstmt.setInt(1, num);
-			pstmt.executeQuery();
+			pstmt.executeUpdate();
 		} catch(Exception e){
 			e.printStackTrace();
 		} finally {
@@ -194,10 +228,192 @@ public class BoardMgr {
 	
 	
 	// Board Delete : 게시물 삭제 (업로드한 파일도 함께 삭제)
+	public void deleteBoard(int num) {
+		Connection con = null;
+		PreparedStatement pstmt=null;
+		ResultSet rs = null;
+		String sql = null;
+		try {
+			con = pool.getConnection();
+			sql = "SELECT filename FROM tblBoard WHERE num=?";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			rs = pstmt.executeQuery();
+			if(rs.next() && rs.getString(1)!=null) {
+				if(!rs.getString(1).equals("")) {
+					File f = new File(SAVEFOLDER+rs.getString(1));
+					if(f.exists()) {
+						//파일 삭제 기능
+						UtilMgr.delete(SAVEFOLDER+rs.getString(1));
+					}
+				}
+			}
+			pstmt.close();
+			sql = "DELETE FROM tblBoard WHERE num=?";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1,num);
+			pstmt.executeUpdate();
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(con, pstmt, rs);
+		}
+				
+	}
+	
+	
+	
+	// Board Update(name, subject, content 3개만 수정)
+	public void updateBoard(BoardBean bean) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		String sql = null;
+		try {
+			con = pool.getConnection();
+			sql = "update tblBoard set name=?, subject=?, content=? "
+					+ "where num = ?";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, bean.getName());
+			pstmt.setString(2, bean.getSubject());
+			pstmt.setString(3, bean.getContent());
+			pstmt.setInt(4, bean.getNum());
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(con, pstmt);
+		}
+	}
+	
+	// Board Update 2 (name, subject, content, file 모두 수정)
+		public void updateBoard2(MultipartRequest multi) {
+			Connection con = null;
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			String sql = null;
+			try {
+				con = pool.getConnection();
+				
+				if(multi.getFilesystemName("filename")!=null) {
+					// 파일이 새로 업로드 되었을 때
+				/// 파일 삭제
+				sql = "SELECT filename FROM tblBoard WHERE num = ?";
+				pstmt = con.prepareStatement(sql);
+				pstmt.setString(1, multi.getParameter("num"));
+				rs = pstmt.executeQuery();
+				if(rs.next() && rs.getString(1)!=null) {
+					if(!rs.getString(1).equals("")) {
+						File f = new File(SAVEFOLDER+rs.getString(1));
+						if(f.exists()) {
+							//파일 삭제 기능
+							UtilMgr.delete(SAVEFOLDER+rs.getString(1));
+						}
+					}
+				}
+				pstmt.close();
+				rs.close();
+				//// -- 파일 삭제 완료
+				}
+				
+				
+				/////////////   파일 업로드    /////////////////
+				File dir = new File(SAVEFOLDER);
+				if(!dir.exists()) {		//// 폴더가 없다면 새롭게 만들어라.
+					dir.mkdirs();         // mkdir() : 상위 폴더가 없으면 저장불가
+				}							  // mkdirs() : 상위 폴더가 없어도 폴더 생성 후 저장 가능
+				
+				String filename = null;
+				int filesize=0; 
+
+				//사용자가 파일을 업로드 하는 경우
+				if(multi.getFilesystemName("filename")!=null) {
+					filename = multi.getFilesystemName("filename");
+					filesize = (int)multi.getFile("filename").length();
+				}
+				
+				////////////////////////////////////////
+				sql = "update tblBoard set name=?, subject=?, content=?, filename=?, filesize=? "
+						+ "where num = ?";
+				pstmt = con.prepareStatement(sql);
+				pstmt.setString(1, multi.getParameter("name"));
+				pstmt.setString(2, multi.getParameter("subject"));
+				pstmt.setString(3, multi.getParameter("content"));
+				// 파일명 / 파일 사이즈
+				pstmt.setString(4, filename);
+				pstmt.setInt(5, filesize);
+				//////////
+				pstmt.setInt(6, Integer.parseInt(multi.getParameter("num")));
+				pstmt.executeUpdate();
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				pool.freeConnection(con, pstmt);
+			}
+		}
+	
+	
+	
+	// Board Reply : 답변
+	public void replyBoard(BoardBean bean) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		String sql = null;
+		try {
+			con = pool.getConnection();
+			sql = "INSERT tblBoard(name, content, subject, ref, pos, depth, regdate,"
+					+" pass, count, ip) VALUES(?,?,?,?,?,?, now(), ?,0,?)";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, bean.getName());
+			pstmt.setString(2, bean.getContent());
+			pstmt.setString(3, bean.getSubject());
+			///////////////////////////////////////////////
+			pstmt.setInt(4, bean.getRef());		   // 원글과 동일한 ref  (ref : 원글 그룹 번호)
+			pstmt.setInt(5, bean.getPos()+1);   // 원글의 Pos +1  (pos : 원글 그룹 내(ref) 답글 순서)
+			pstmt.setInt(6, bean.getDepth()+1);   // 원글의 depth+1  (
+			///////////////////////////////////////////////
+			pstmt.setString(7,  bean.getPass());
+			pstmt.setString(8,  bean.getIp());
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(con, pstmt);
+		}
+	}
+	
+	
+	// Board Reply Up : 답변 위치값 (pos) 수정(+1 증가)
+	public void replyUpBoard(int ref, int pos) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		String sql = null;
+		try {
+			con = pool.getConnection();
+			sql = "UPDATE tblBoard SET pos = pos+1 WHERE ref=? AND pos>?";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1, ref);
+			pstmt.setInt(2, pos);
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(con, pstmt);
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	//Post 1000
-	//페이징 및 블럭 테스트를 위한 게시물 저장 메소드 
+	//페이징 및 블럭 테스트를 위한 게시물 1000개 삽입하는 메소드 
 	public void post1000(){
 		Connection con = null;
 		PreparedStatement pstmt = null;
