@@ -4,6 +4,7 @@
 <%@page import="java.util.Vector"%>
 <%@page contentType="text/html; charset=EUC-KR" %>
 <jsp:useBean id="mgr" class="board.BoardMgr"/>
+<jsp:useBean id="cmgr" class="board.BCommentMgr"/>
 <%
 		request.setCharacterEncoding("EUC-KR");
 		int totalRecord =0;	  // 총게시물 개수  (mgr 메소드 사용해서 가져올 예정)
@@ -161,6 +162,7 @@
 										int depth = bean.getDepth(); 		// 답변의 깊이
 										int count = bean.getCount();		// 조회수
 										String filename = bean.getFilename();		// 첨부파일
+										int bcount = cmgr.getBCommentCount(num); // 댓글 count
 								%>		
 								<tr align="center">
 									<td><%=totalRecord-start-i %></td>  <!-- : "전체 레코드 수-현재 시작 행-i" -->
@@ -175,6 +177,9 @@
 										</a>
 										<% if(filename!=null&&!filename.equals("")){ %>
 											<img src = "img/icon_file.gif" align="middle">
+										<% } %>
+										<% if(bcount>0) {%>
+													<font color="red">&nbsp;(<%=bcount %>)</font>
 										<% } %>
 									</td>
 									<td><%=name %></td>
