@@ -285,6 +285,7 @@ public class BoardMgr {
 		}
 	}
 	
+	
 	// Board Update 2 (name, subject, content, file 모두 수정)
 		public void updateBoard2(MultipartRequest multi) {
 			Connection con = null;
@@ -293,7 +294,7 @@ public class BoardMgr {
 			String sql = null;
 			try {
 				con = pool.getConnection();
-				
+
 				if(multi.getFilesystemName("filename")!=null) {
 					// 파일이 새로 업로드 되었을 때
 				/// 파일 삭제
@@ -339,8 +340,13 @@ public class BoardMgr {
 				pstmt.setString(2, multi.getParameter("subject"));
 				pstmt.setString(3, multi.getParameter("content"));
 				// 파일명 / 파일 사이즈
-				pstmt.setString(4, filename);
-				pstmt.setInt(5, filesize);
+				if(multi.getFilesystemName("filename")==null) {  // filename 이 입력되지 않았을 때는  sql : filename=filename, filesize = filesize  동일값 입력되도록 함.
+					pstmt.setString(4, "filename");
+					pstmt.setString(5, "filesize");
+				} else {															// 새 filename 입력되었을 때 : 새 name 및 size 로 입력시킴
+					pstmt.setString(4, filename);
+					pstmt.setInt(5, filesize);
+				}
 				//////////
 				pstmt.setInt(6, Integer.parseInt(multi.getParameter("num")));
 				pstmt.executeUpdate();
