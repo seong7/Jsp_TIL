@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Vector;
-import mail.GmailSend;
 
 public class MemberMgr {
 
@@ -295,7 +294,7 @@ public class MemberMgr {
 		String title = "OOO.com에서 아이디와 비밀번호 전송합니다.";
 		String content = "id : " + id + " / pwd : " + pwd;
 		String toEmail = bean.getEmail();
-		GmailSend.send(title, content, toEmail);
+		MailSend.send(title, content, toEmail);
 	}
 }
 
