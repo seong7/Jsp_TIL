@@ -1,6 +1,9 @@
 package shop;
 
 import java.util.*;
+
+import javax.servlet.http.HttpServletRequest;
+
 import java.text.*;
 
 public class UtilMgr {
@@ -49,4 +52,9 @@ public class UtilMgr {
 	  DateFormat df = DateFormat.getDateInstance();
 	  return df.format(now).toString();
   }
+  
+	public static int parseInt(HttpServletRequest request, 
+			String name) {
+		return Integer.parseInt(request.getParameter(name));
+	}
 }

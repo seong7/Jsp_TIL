@@ -27,10 +27,17 @@
 				<td><font color="#FFFFFF">상세보기</font></td>
 			</tr>
 		<%
-				for(int i=0;i<vlist.size();i++){
-					ProductBean pbean = 
-				}
-		%>	
+				for(int i=0;i<pvlist.size();i++){
+					ProductBean pbean = pvlist.get(i);
+		%>
+		<tr align="center">
+			<td><%=pbean.getName()%></td>
+			<td><%=UtilMgr.monFormat(pbean.getPrice())%></td>
+			<td><%=pbean.getDate()%></td>
+			<td><%=UtilMgr.monFormat(pbean.getStock())%></td>
+			<td><input type="button" value="상세보기" onclick="productDetail('<%=pbean.getNo()%>')" ></td>
+		</tr>
+		<%}//---for%>	
 		</table>
 	</td>
 	</tr>
