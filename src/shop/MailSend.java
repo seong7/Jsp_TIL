@@ -15,7 +15,7 @@ public class MailSend {
 	
 	private static class SMTPAuthenticator extends Authenticator {
 		public PasswordAuthentication getPasswordAuthentication() {
-			//Áö¸ŞÀÏ ¾ÆÀÌµğ , ºñ¹Ğ¹øÈ£
+			//ì§€ë©”ì¼ ì•„ì´ë”” , ë¹„ë°€ë²ˆí˜¸
 			return new PasswordAuthentication("netflix720222", "090908sw??");
 		}
 	}
@@ -24,7 +24,7 @@ public class MailSend {
 	public static void send(String title, String content, String toEmail) {
 		
 		Properties p = new Properties();
-		p.put("mail.smtp.user", "netflix720222@gmail.com"); //º»ÀÎ Áö¸ŞÀÏ
+		p.put("mail.smtp.user", "netflix720222@gmail.com"); //ë³¸ì¸ ì§€ë©”ì¼
 		p.put("mail.smtp.host", "smtp.gmail.com");
 		p.put("mail.smtp.port", "465");
 		p.put("mail.smtp.starttls.enable", "true");
@@ -49,17 +49,14 @@ public class MailSend {
 			
 			Address toAddr = new InternetAddress(toEmail); 
 			msg.addRecipient(Message.RecipientType.TO, toAddr);
-			msg.setContent(message, "text/plain;charset=KSC5601");
+
+			//msg.setContent(message, "text/plain;charset=KSC5601");
+			msg.setContent(message, "text/html;charset=KSC5601");
 			
 			Transport.send(msg);
 			
 		} catch (Exception e) { 
 			e.printStackTrace();
 		}
-	}
-
-	public static void main(String[] args) {
-		send("Á¦¸ñ1","³»¿ë1","simba222@naver.com");
-		System.out.println("¼º°ø");
 	}
 }

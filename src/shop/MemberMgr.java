@@ -292,7 +292,8 @@ public class MemberMgr {
 		MemberBean bean = getMember(id);
 		String pwd = bean.getPwd();
 		String title = "OOO.com에서 아이디와 비밀번호 전송합니다.";
-		String content = "id : " + id + " / pwd : " + pwd;
+		String content = "<font color='red'><b>id : " + id; 
+		content+= " / pwd : " + pwd+"</b></font>";
 		String toEmail = bean.getEmail();
 		MailSend.send(title, content, toEmail);
 	}
