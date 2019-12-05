@@ -115,7 +115,7 @@ function win_close(){
 	}
 	
 	function cartDelete(form) {
-		form.flag.value="del";
+		form.flag.value="delete";
 		form.submit();
 	}
 

@@ -19,7 +19,7 @@
 			}else if(flag.equals("update")){
 				cMgr.updateCart(order);
 				msg = "장바구니를 수정하였습니다.";
-			}else if(flag.equals("del")){
+			}else if(flag.equals("delete")){
 				cMgr.deleteCart(order);
 				msg = "장바구니를 삭제하였습니다.";
 			}
