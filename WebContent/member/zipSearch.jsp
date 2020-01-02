@@ -1,7 +1,7 @@
 <%@ page import="java.util.Vector"%>
 <%@ page import="member.ZipcodeBean"%>
 <%@ page contentType="text/html; charset=EUC-KR"%>
-<jsp:useBean id="mgr" class="member.MemberMgr"/>
+<jsp:useBean id="mgr" class="Member.MemberMgr"/>
 <%
 		request.setCharacterEncoding("EUC-KR");
 		//검색이 아니고 창만 open 되었을 때 :  search = n   /  검색일 때 : = y

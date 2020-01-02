@@ -17,7 +17,7 @@
 			document.loginFrm.pwd.focus();
 			return;
 		}
-		document.loginFrm.submit();
+			document.loginFrm.submit();
 	}
 </script>
 <body bgcolor="#FFFFCC">
