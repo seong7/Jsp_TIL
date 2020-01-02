@@ -62,6 +62,9 @@
 	</tr>
 </table>
 <input type="hidden" name="ip" value="<%=request.getRemoteAddr()%>">
+<%
+	System.out.println(" test !!!   : " + request.getRemoteAddr());
+%>
 </form>
 </div>
 </body>
