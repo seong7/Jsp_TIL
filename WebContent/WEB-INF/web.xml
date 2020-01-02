@@ -39,6 +39,13 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
     
+    <jsp-config>
+    	<taglib>
+    		<taglib-uri>/Functions.tld</taglib-uri>
+    		<taglib-location>/WEB-INF/tlds/Functions.tld</taglib-location>
+    	</taglib>
+    </jsp-config>
+    
     
  <!--  wecome file  :  default file (open when domain without "/file name")-->
     <welcome-file-list>
